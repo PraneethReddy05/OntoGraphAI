@@ -58,7 +58,7 @@ class CitationAgent(BaseAgent):
             # Create cites edges (original paper -> cited paper)
             citing_paper = list(self.graph_manager.G.nodes)[0]
             self.graph_manager.add_edge(citing_paper, title, relation="cites")
-            added_nodes.append((citing_paper, title))
+            added_nodes.append((citing_paper, ref_id))
 
         logging.info(f"{self.name} Added {len(added_nodes)} citation edges.")
         return {"new_references": added_nodes}
