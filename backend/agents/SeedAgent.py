@@ -9,6 +9,7 @@ class SeedAgent(BaseAgent):
     def __init__(self, graph_manager):
         super().__init__(name= "SeedAgent", graph_manager=graph_manager)
         self.openalex = OpenAlexService() #API wrapper 
+        logging.basicConfig(level=logging.INFO)
 
     def perceive(self, input_data):
         """
@@ -52,12 +53,12 @@ class SeedAgent(BaseAgent):
         authors = [a["author"]["display_name"] for a in action.get("authorships", [])]
 
         # Add paper node
-        self.graph_manager.add_node(paper_id, ntype="Paper", title = title)
+        self.graph_manager.add_node(title, ntype="Paper", title = title)
 
         # Add author nodes + edges
         for author in authors:
             self.graph_manager.add_node(author, ntype="Author")
-            self.graph_manager.add_edge(author, paper_id, relation="writtenBy")
+            self.graph_manager.add_edge(author, title, relation="writtenBy")
         
         logging.info(f"{self.name} Added seed paper '{title}' with {len(authors)} authors.")
         return {"paper": paper_id, "title": title, "authors": authors}

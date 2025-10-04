@@ -18,3 +18,14 @@ class OpenAlexService:
         url = f"{self.BASE_URL}?search={topic}&per-page={limit}"
         r = requests.get(url)
         return r.json().get("results", []) if r.status_code == 200 else []
+    
+    def get_multiple_papers(self, work_ids):
+        """
+        Batch-fetch multiple papers by OpenAlex IDs.
+        """
+        if not work_ids:
+            return []
+        ids_str = "|".join(work_ids)
+        url = f"{self.BASE_URL}?filter=ids.openalex:{ids_str}"
+        r = requests.get(url)
+        return r.json().get("results", []) if r.status_code == 200 else []
