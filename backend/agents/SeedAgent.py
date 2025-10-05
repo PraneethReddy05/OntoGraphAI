@@ -18,7 +18,7 @@ class SeedAgent(BaseAgent):
         - OpenAlex ID (e.g., 'W2741809807')
         - Search topic (string, e.g., 'Knowledge Graphs')
         """
-        logging.info(f"{self.name} Perceiving input: {input_data}")
+        logging.info(f"[{self.name}] Perceiving input: {input_data}")
         if input_data.startswith("10."): #DOI
             return self.openalex.get_paper_by_doi(input_data)
         elif input_data.startswith("W"): #OpenAlex Work ID
@@ -32,7 +32,7 @@ class SeedAgent(BaseAgent):
         For simplicity: take the first valid paper.
         """
         if not perception:
-            logging.warning(f"{self.name} No valid perception data.")
+            logging.warning(f"[{self.name}] No valid perception data.")
             return None 
 
         # Normalize into a single paper dict
@@ -45,7 +45,7 @@ class SeedAgent(BaseAgent):
         Insert the chosen seed paper into the graph.
         """
         if not action:
-            logging.warning(f"{self.name} No action to perform.")
+            logging.warning(f"[{self.name}] No action to perform.")
             return None
         
         paper_id = action.get("id", "Unknown")
@@ -53,12 +53,12 @@ class SeedAgent(BaseAgent):
         authors = [a["author"]["display_name"] for a in action.get("authorships", [])]
 
         # Add paper node
-        self.graph_manager.add_node(title, ntype="Paper", title = title)
+        self.graph_manager.add_node(title, ntype="Paper", id = paper_id)
 
         # Add author nodes + edges
         for author in authors:
             self.graph_manager.add_node(author, ntype="Author")
             self.graph_manager.add_edge(author, title, relation="writtenBy")
-        
-        logging.info(f"{self.name} Added seed paper '{title}' with {len(authors)} authors.")
+
+        logging.info(f"[{self.name}] Added seed paper '{title}' with {len(authors)} authors.")
         return {"paper": paper_id, "title": title, "authors": authors}

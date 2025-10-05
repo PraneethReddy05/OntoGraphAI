@@ -20,10 +20,10 @@ class AuthorAgent(BaseAgent):
         :param paper_id: str - OpenAlex paper ID
         :return: list of author dicts [{id, name}, ...]
         """
-        logging.info(f"[AuthorAgent] Fetching authors for {paper_id}")
+        logging.info(f"[{self.name}] Fetching authors for {paper_id}")
         paper_data = self.openalex.get_paper_by_id(paper_id)
         if not paper_data:
-            logging.warning(f"[AuthorAgent] Paper {paper_id} not found.")
+            logging.warning(f"[{self.name}] Paper {paper_id} not found.")
             return []
 
         self.paper = paper_data.get("title")
@@ -37,7 +37,7 @@ class AuthorAgent(BaseAgent):
                     "name": author_info.get("display_name", "Unknown Author")
                 })
 
-        logging.info(f"[AuthorAgent] Found {len(authors)} authors.")
+        logging.info(f"[{self.name}] Found {len(authors)} authors.")
         return authors
 
     def decide(self, perception):
@@ -51,7 +51,7 @@ class AuthorAgent(BaseAgent):
         for author in perception:
             flag = True if not self.graph_manager.has_node(author["name"]) else False
             new_authors.append((author,flag))
-        logging.info(f"[AuthorAgent] {len(new_authors)} new authors to add.")
+        logging.info(f"[{self.name}] {len(new_authors)} new authors to add.")
         return new_authors
 
     def act(self, authors):
@@ -71,5 +71,5 @@ class AuthorAgent(BaseAgent):
             self.graph_manager.add_edge(author["name"], self.paper, relation="writtenBy")
             added_edges.append((author["name"], self.paper))
 
-        logging.info(f"[AuthorAgent] Added {len(added_edges)} writtenBy edges.")
+        logging.info(f"[{self.name}] Added {len(added_edges)} writtenBy edges.")
         return {"authors_added": [a for a, _ in authors]}

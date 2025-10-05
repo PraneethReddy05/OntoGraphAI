@@ -18,13 +18,13 @@ class CitationAgent(BaseAgent):
         :param paper_id: str - OpenAlex ID (e.g., 'W2741809807')
         :return: list of referenced paper IDs
         """
-        logging.info(f"{self.name} fetching references for {paper_id}")
+        logging.info(f"[{self.name}] fetching references for {paper_id}")
         paper_data = self.openalex.get_paper_by_id(paper_id)
         if not paper_data:
-            logging.warning(f"{self.name} No data found for paper ID: {paper_id}")
+            logging.warning(f"[{self.name}] No data found for paper ID: {paper_id}")
             return []
         refs = paper_data.get("referenced_works", [])
-        logging.info(f"{self.name} found {len(refs)} references")
+        logging.info(f"[{self.name}] found {len(refs)} references")
         return refs[:self.max_citations] # limit to max_refs
     
     def decide(self, perception):
@@ -53,12 +53,12 @@ class CitationAgent(BaseAgent):
                 continue
 
             title = ref_data.get("title", "Untitled Paper")
-            self.graph_manager.add_node(title, ntype="Paper", title=title)
+            self.graph_manager.add_node(title, ntype="Paper", id=ref_id)
 
             # Create cites edges (original paper -> cited paper)
             citing_paper = list(self.graph_manager.G.nodes)[0]
             self.graph_manager.add_edge(citing_paper, title, relation="cites")
             added_nodes.append((citing_paper, ref_id))
 
-        logging.info(f"{self.name} Added {len(added_nodes)} citation edges.")
+        logging.info(f"[{self.name}] Added {len(added_nodes)} citation edges.")
         return {"new_references": added_nodes}
